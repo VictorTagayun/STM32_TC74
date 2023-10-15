@@ -161,7 +161,7 @@ int main(void)
 	}
 
 	printf("HAL_I2C_Mem_Read \n");
-//	HAL_I2C_Mem_Read(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress,uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout)
+
 	result = HAL_I2C_Mem_Read(&hi2c3, 0x4d << 1,  1, 1, &temperature, 1, 10);
 	if (result != HAL_OK) // HAL_ERROR or HAL_BUSY or HAL_TIMEOUT
 	{
@@ -174,7 +174,7 @@ int main(void)
 
 	printf("HAL_I2C_Mem_Write \n");
 	uint8_t data = 0x80;
-	//	HAL_I2C_Mem_Write(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout)
+
 	result = HAL_I2C_Mem_Write(&hi2c3, 0x4d << 1,  1, 1, &data, 1, 10);
 	if (result != HAL_OK) // HAL_ERROR or HAL_BUSY or HAL_TIMEOUT
 	{
