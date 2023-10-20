@@ -53,16 +53,16 @@ UART_HandleTypeDef hlpuart1;
 /* USER CODE BEGIN PV */
 
 enum TC74_Command{
-	CommandTemp = 0,
-	CommandConfig,
+	TempCommand = 0,
+	ConfigCommand,
 };
 
 enum TC74_ReadWriteFunc{
-	TC74_Read = 0,
-	TC74_Write,
-	TC74_ReadTemperature,
-	TC74_ReadConfig,
-	TC74_WriteConfig,
+	TC74_ReadFunc = 0,
+	TC74_WriteFunc,
+	TC74_ReadTemperatureFunc,
+	TC74_ReadConfigFunc,
+	TC74_WriteConfigFunc,
 };
 
 
@@ -128,27 +128,94 @@ int main(void)
 
 	uint8_t TC74_temperature, TC74_config, TC74_LastCommand, TC74_Address = 0x4d;
 
-	printf("TC74_Byte_Read address = %X \n", CommandTemp);
-	TC74_Byte_Read(&hi2c3, TC74_Address, CommandTemp, &TC74_temperature, 10);
+	printf("TC74_Byte_Read address = %X \n", TempCommand);
+	TC74_Byte_Read(&hi2c3, TC74_Address, TempCommand, &TC74_temperature, 10);
 	printf("TC74_temperature read data = %d \n", TC74_temperature);
 
-	printf("TC74_Byte_Read address = %X \n", CommandConfig);
-	TC74_Byte_Read(&hi2c3, TC74_Address, CommandConfig, &TC74_config, 10);
+	printf("----\n");
+	printf("TC74_Byte_Read address = %X \n", ConfigCommand);
+	TC74_Byte_Read(&hi2c3, TC74_Address, ConfigCommand, &TC74_config, 10);
 	printf("TC74_config read data = %X \n", TC74_config);
 
-	printf("TC74_Byte_Write address = %X \n", CommandConfig);
+	printf("----\n");
+	printf("TC74_Byte_Write address = %X \n", ConfigCommand);
 	TC74_config = TC74_Standby;
-	TC74_Byte_Write(&hi2c3, TC74_Address, CommandConfig, &TC74_config, 10);
+	TC74_Byte_Write(&hi2c3, TC74_Address, ConfigCommand, &TC74_config, 10);
 	printf("TC74_config write data = %X \n", TC74_config);
 
-	printf("TC74_Byte_Read address = %X \n", CommandTemp);
-	TC74_Byte_Read(&hi2c3, TC74_Address, CommandTemp, &TC74_temperature, 10);
+	printf("----\n");
+	printf("TC74_Byte_Read address = %X \n", TempCommand);
+	TC74_Byte_Read(&hi2c3, TC74_Address, TempCommand, &TC74_temperature, 10);
 	printf("TC74_temperature read data = %d \n", TC74_temperature);
 
-	printf("TC74_Byte_Read address = %X \n", CommandTemp);
-	TC74_Byte_Read(&hi2c3, TC74_Address, CommandTemp, &TC74_temperature, 10);
+	printf("----\n");
+	printf("TC74_Byte_Read address = %X \n", TempCommand);
+	TC74_Byte_Read(&hi2c3, TC74_Address, TempCommand, &TC74_temperature, 10);
 	printf("TC74_temperature read data = %d \n", TC74_temperature);
 
+	printf("----\n");
+	printf("TC74_Receive_LastCommand \n");
+	TC74_Receive_LastReadWriteAddress(&hi2c3, TC74_Address, &TC74_LastCommand, 10);
+	printf("TC74_LastCommand = 0x%X = %d\n", TC74_LastCommand, TC74_LastCommand);
+
+	printf("----\n");
+	printf("TC74_Byte_ReadWrite  = TC74_ReadConfigFunc \n");
+	TC74_Byte_ReadWrite(&hi2c3, TC74_ReadConfigFunc, TC74_Address, &TC74_config, 10);
+	printf("TC74_ReadConfigFuncc read data = 0x%X \n", TC74_config);
+
+	printf("----\n");
+	printf("TC74_Receive_LastCommand \n");
+	TC74_Receive_LastReadWriteAddress(&hi2c3, TC74_Address, &TC74_LastCommand, 10);
+	printf("TC74_LastCommand = 0x%X = %d\n", TC74_LastCommand, TC74_LastCommand);
+
+	printf("----\n");
+	printf("TC74_Byte_ReadWrite  = TC74_ReadTemperatureFunc \n");
+	TC74_Byte_ReadWrite(&hi2c3, TC74_ReadTemperatureFunc, TC74_Address, &TC74_temperature, 10);
+	printf("TC74_ReadTemperatureFunc read data = %d \n", TC74_temperature);
+
+	printf("----\n");
+	printf("TC74_Receive_LastCommand \n");
+	TC74_Receive_LastReadWriteAddress(&hi2c3, TC74_Address, &TC74_LastCommand, 10);
+	printf("TC74_LastCommand = 0x%X = %d\n", TC74_LastCommand, TC74_LastCommand);
+
+	printf("----\n");
+	printf("TC74_Byte_ReadWrite  = TC74_ReadConfigFunc \n");
+	TC74_Byte_ReadWrite(&hi2c3, TC74_ReadConfigFunc, TC74_Address, &TC74_config, 10);
+	printf("TC74_ReadConfigFuncc read data = 0x%X \n", TC74_config);
+
+	printf("----\n");
+	printf("TC74_Receive_LastCommand \n");
+	TC74_Receive_LastReadWriteAddress(&hi2c3, TC74_Address, &TC74_LastCommand, 10);
+	printf("TC74_LastCommand = 0x%X = %d\n", TC74_LastCommand, TC74_LastCommand);
+
+	printf("----\n");
+	TC74_config = TC74_Standby;
+	printf("TC74_Byte_ReadWrite  = TC74_ReadConfigFunc = TC74_Standby = 0x%x \n", TC74_config);
+	TC74_Byte_ReadWrite(&hi2c3, TC74_WriteConfigFunc, TC74_Address, &TC74_config, 10);
+	printf("TC74_ReadConfigFunc write data = 0x%X \n", TC74_config);
+
+	printf("----\n");
+	printf("TC74_Receive_LastCommand \n");
+	TC74_Receive_LastReadWriteAddress(&hi2c3, TC74_Address, &TC74_LastCommand, 10);
+	printf("TC74_LastCommand = 0x%X = %d\n", TC74_LastCommand, TC74_LastCommand);
+
+	printf("----\n");
+	TC74_config = TC74_Normal;
+	printf("TC74_Byte_ReadWrite  = TC74_ReadConfigFunc = TC74_Normal = 0x%x \n", TC74_config);
+	TC74_Byte_ReadWrite(&hi2c3, TC74_WriteConfigFunc, TC74_Address, &TC74_config, 10);
+	printf("TC74_ReadConfigFunc write data = 0x%X \n", TC74_config);
+
+	printf("----\n");
+	printf("TC74_Receive_LastCommand \n");
+	TC74_Receive_LastReadWriteAddress(&hi2c3, TC74_Address, &TC74_LastCommand, 10);
+	printf("TC74_LastCommand = 0x%X = %d\n", TC74_LastCommand, TC74_LastCommand);
+
+	printf("----\n");
+	printf("TC74_Byte_ReadWrite  = TC74_ReadConfigFunc \n");
+	TC74_Byte_ReadWrite(&hi2c3, TC74_ReadConfigFunc, TC74_Address, &TC74_config, 10);
+	printf("TC74_ReadConfigFuncc read data = 0x%X \n", TC74_config);
+
+	printf("----\n");
 	printf("TC74_Receive_LastCommand \n");
 	TC74_Receive_LastReadWriteAddress(&hi2c3, TC74_Address, &TC74_LastCommand, 10);
 	printf("TC74_LastCommand = 0x%X = %d\n", TC74_LastCommand, TC74_LastCommand);
@@ -426,12 +493,12 @@ HAL_StatusTypeDef TC74_Receive_LastReadWriteAddress(I2C_HandleTypeDef *hi2c, uin
 
 HAL_StatusTypeDef TC74_Byte_ReadWrite(I2C_HandleTypeDef *hi2c, uint16_t TC74_ReadWriteFunc, uint16_t DevAddress, uint8_t *pData, uint32_t Timeout)
 {
-	if(TC74_ReadWriteFunc == TC74_ReadTemperature)
-		return HAL_I2C_Mem_Read(hi2c, DevAddress << 1,  TC74_Read, 1, pData, 1, Timeout);
-	else if (TC74_ReadWriteFunc == TC74_ReadConfig)
-		return HAL_I2C_Mem_Read(hi2c, DevAddress << 1,  TC74_Read, 1, pData, 1, Timeout);
-	else if (TC74_ReadWriteFunc == TC74_WriteConfig)
-		return HAL_I2C_Mem_Write(hi2c, DevAddress << 1,  TC74_Write, 1, pData, 1, Timeout);
+	if(TC74_ReadWriteFunc == TC74_ReadTemperatureFunc)
+		return HAL_I2C_Mem_Read(hi2c, DevAddress << 1,  TempCommand, 1, pData, 1, Timeout);
+	else if (TC74_ReadWriteFunc == TC74_ReadConfigFunc)
+		return HAL_I2C_Mem_Read(hi2c, DevAddress << 1,  ConfigCommand, 1, pData, 1, Timeout);
+	else if (TC74_ReadWriteFunc == TC74_WriteConfigFunc)
+		return HAL_I2C_Mem_Write(hi2c, DevAddress << 1,  ConfigCommand, 1, pData, 1, Timeout);
 }
 
 /* USER CODE END 4 */
