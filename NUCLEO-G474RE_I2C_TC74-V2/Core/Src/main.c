@@ -37,6 +37,7 @@
 #define TC74_Standby 0x80
 #define TC74_Normal 0x00
 #define TC74_Address 0x4d
+#define TC74_I2C_delay 200
 
 /* USER CODE END PD */
 
@@ -594,33 +595,45 @@ void TC74_Byte_ReadWriteFunc_WriteConfig_Standby (void)
 
 HAL_StatusTypeDef TC74_Byte_Read(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t Command, uint8_t *pData, uint32_t Timeout)
 {
-	HAL_Delay(100);
-	return HAL_I2C_Mem_Read(hi2c, DevAddress << 1,  Command, 1, pData, 1, Timeout);
+	HAL_StatusTypeDef status;
+	status = HAL_I2C_Mem_Read(hi2c, DevAddress << 1,  Command, 1, pData, 1, Timeout);
+	printf("TC74_Byte_Read status = 0x%X \n", status);
+	HAL_Delay(TC74_I2C_delay);
+	return status;
 }
 
 HAL_StatusTypeDef TC74_Byte_Write(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t Command, uint8_t *pData, uint32_t Timeout)
 {
-	HAL_Delay(100);
-	return HAL_I2C_Mem_Write(hi2c, DevAddress << 1,  Command, 1, pData, 1, Timeout);
+	HAL_StatusTypeDef status;
+	status = HAL_I2C_Mem_Write(hi2c, DevAddress << 1,  Command, 1, pData, 1, Timeout);
+	printf("TC74_Byte_Write status = 0x%X \n", status);
+	HAL_Delay(TC74_I2C_delay);
+	return status;
 }
 
 HAL_StatusTypeDef TC74_Receive_LastReadWriteAddress(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint32_t Timeout)
 {
-	HAL_Delay(100);
-	return HAL_I2C_Master_Receive(hi2c, DevAddress << 1, pData,  1, Timeout);
+	HAL_StatusTypeDef status;
+	status = HAL_I2C_Master_Receive(hi2c, DevAddress << 1, pData,  1, Timeout);
+	printf("TC74_Receive_LastReadWriteAddress status = 0x%X \n", status);
+	HAL_Delay(TC74_I2C_delay);
+	return status;
 }
 
 HAL_StatusTypeDef TC74_Byte_ReadWrite(I2C_HandleTypeDef *hi2c, uint16_t TC74_ReadWriteFunc, uint16_t DevAddress, uint8_t *pData, uint32_t Timeout)
 {
-	HAL_Delay(100);
+	HAL_StatusTypeDef status;
 	if(TC74_ReadWriteFunc == TC74_ReadTemperatureFunc)
-		return HAL_I2C_Mem_Read(hi2c, DevAddress << 1,  TempCommand, 1, pData, 1, Timeout);
+		status = HAL_I2C_Mem_Read(hi2c, DevAddress << 1,  TempCommand, 1, pData, 1, Timeout);
 	else if (TC74_ReadWriteFunc == TC74_ReadConfigFunc)
-		return HAL_I2C_Mem_Read(hi2c, DevAddress << 1,  ConfigCommand, 1, pData, 1, Timeout);
+		status = HAL_I2C_Mem_Read(hi2c, DevAddress << 1,  ConfigCommand, 1, pData, 1, Timeout);
 	else if (TC74_ReadWriteFunc == TC74_WriteConfigFunc)
-		return HAL_I2C_Mem_Write(hi2c, DevAddress << 1,  ConfigCommand, 1, pData, 1, Timeout);
+		status = HAL_I2C_Mem_Write(hi2c, DevAddress << 1,  ConfigCommand, 1, pData, 1, Timeout);
 	else
-		return 0xff;
+		status = 0xff;
+	printf("TC74_Byte_ReadWrite status = 0x%X \n", status);
+	HAL_Delay(TC74_I2C_delay);
+	return status;
 }
 
 /* USER CODE END 4 */

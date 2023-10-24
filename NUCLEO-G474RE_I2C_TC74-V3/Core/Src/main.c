@@ -37,6 +37,7 @@
 #define TC74_Standby 0x80
 #define TC74_Normal 0x00
 #define TC74_Address 0x4d
+#define TC74_I2C_delay 200
 
 /* USER CODE END PD */
 
@@ -138,11 +139,20 @@ int main(void)
 	printf("\n\n=======================================\n");
 	printf("Start >> NUCLEO-G474RE_I2C_TC74-V3 \n");
 
-	TC74_Byte_ReadFunc_Temp();
+	TC74_Byte_ReadFunc_Temp(); //TC74_Byte_ReadFunc_Temp();
 
-	TC74_Byte_ReadFunc_Config();
+    while (HAL_I2C_GetState(&hi2c3) != HAL_I2C_STATE_READY)
+    {
+    }
+
+	TC74_Byte_ReadFunc_Config (); //TC74_Byte_ReadFunc_Config ();
+
+    while (HAL_I2C_GetState(&hi2c3) != HAL_I2C_STATE_READY)
+    {
+    }
 
 	TC74_ReadFunc_LastCommand();
+/*
 
 	TC74_Byte_ReadWriteFunc_ReadTemp();
 
@@ -159,6 +169,7 @@ int main(void)
 	TC74_Byte_ReadWriteFunc_ReadConfig();
 
 	TC74_Byte_ReadWriteFunc_ReadConfig();
+*/
 
 	printf("----\n");
 	printf("End   >> NUCLEO-G474RE_I2C_TC74-V3 \n");
@@ -314,6 +325,10 @@ static void MX_I2C3_Init(void)
   }
   /* USER CODE BEGIN I2C3_Init 2 */
 
+  /** I2C Fast mode Plus enable
+  */
+  __HAL_SYSCFG_FASTMODEPLUS_ENABLE(I2C_FASTMODEPLUS_I2C1);
+
   /* USER CODE END I2C3_Init 2 */
 
 }
@@ -382,9 +397,6 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel2_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
-  /* DMAMUX_OVR_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMAMUX_OVR_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMAMUX_OVR_IRQn);
 
 }
 
@@ -455,7 +467,7 @@ void TC74_Byte_ReadFunc_Config (void)
 	printf("----\n");
 	printf("TC74_Byte_Read address = ConfigCommand = %X \n", ConfigCommand);
 	TC74_Byte_Read(&hi2c3, TC74_Address, ConfigCommand, &TC74_config, 10);
-	printf("TC74_config read data = %X \n", TC74_config);
+	printf("TC74_config read data = 0x%X \n", TC74_config);
 }
 
 void TC74_ReadFunc_LastCommand (void)
@@ -505,33 +517,45 @@ void TC74_Byte_ReadWriteFunc_WriteConfig_Standby (void)
 
 HAL_StatusTypeDef TC74_Byte_Read(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t Command, uint8_t *pData, uint32_t Timeout)
 {
-	HAL_Delay(100);
-	return HAL_I2C_Mem_Read(hi2c, DevAddress << 1,  Command, 1, pData, 1, Timeout);
+	HAL_StatusTypeDef status;
+	status = HAL_I2C_Mem_Read_DMA(hi2c, DevAddress << 1,  Command, 1, pData, 1);
+	printf("TC74_Byte_Read status = 0x%X \n", status);
+	HAL_Delay(TC74_I2C_delay);
+	return status;
 }
 
 HAL_StatusTypeDef TC74_Byte_Write(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t Command, uint8_t *pData, uint32_t Timeout)
 {
-	HAL_Delay(100);
-	return HAL_I2C_Mem_Write(hi2c, DevAddress << 1,  Command, 1, pData, 1, Timeout);
+	HAL_StatusTypeDef status;
+	status = HAL_I2C_Mem_Write_DMA(hi2c, DevAddress << 1,  Command, 1, pData, 1);
+	printf("TC74_Byte_Write status = 0x%X \n", status);
+	HAL_Delay(TC74_I2C_delay);
+	return status;
 }
 
 HAL_StatusTypeDef TC74_Receive_LastReadWriteAddress(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint32_t Timeout)
 {
-	HAL_Delay(100);
-	return HAL_I2C_Master_Receive(hi2c, DevAddress << 1, pData,  1, Timeout);
+	HAL_StatusTypeDef status;
+	status = HAL_I2C_Master_Receive_DMA(hi2c, DevAddress << 1, pData,  1);
+	printf("TC74_Receive_LastReadWriteAddress status = 0x%X \n", status);
+	HAL_Delay(TC74_I2C_delay);
+	return status;
 }
 
 HAL_StatusTypeDef TC74_Byte_ReadWrite(I2C_HandleTypeDef *hi2c, uint16_t TC74_ReadWriteFunc, uint16_t DevAddress, uint8_t *pData, uint32_t Timeout)
 {
-	HAL_Delay(100);
+	HAL_StatusTypeDef status;
 	if(TC74_ReadWriteFunc == TC74_ReadTemperatureFunc)
-		return HAL_I2C_Mem_Read(hi2c, DevAddress << 1,  TempCommand, 1, pData, 1, Timeout);
+		status = HAL_I2C_Mem_Read_DMA(hi2c, DevAddress << 1,  TempCommand, 1, pData, 1);
 	else if (TC74_ReadWriteFunc == TC74_ReadConfigFunc)
-		return HAL_I2C_Mem_Read(hi2c, DevAddress << 1,  ConfigCommand, 1, pData, 1, Timeout);
+		status = HAL_I2C_Mem_Read_DMA(hi2c, DevAddress << 1,  ConfigCommand, 1, pData, 1);
 	else if (TC74_ReadWriteFunc == TC74_WriteConfigFunc)
-		return HAL_I2C_Mem_Write(hi2c, DevAddress << 1,  ConfigCommand, 1, pData, 1, Timeout);
+		status = HAL_I2C_Mem_Write_DMA(hi2c, DevAddress << 1,  ConfigCommand, 1, pData, 1);
 	else
-		return 0xff;
+		status = 0xff;
+	printf("TC74_Byte_ReadWrite status = 0x%X \n", status);
+	HAL_Delay(TC74_I2C_delay);
+	return status;
 }
 
 /* USER CODE END 4 */
