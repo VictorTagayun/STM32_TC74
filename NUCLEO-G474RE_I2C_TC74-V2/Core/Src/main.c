@@ -253,6 +253,10 @@ int main(void)
 
 	TC74_Byte_ReadFunc_Temp();
 
+    while (HAL_I2C_GetState(&hi2c3) != HAL_I2C_STATE_READY)
+    {
+    }
+
 	TC74_Byte_ReadFunc_Config();
 
 	TC74_ReadFunc_LastCommand();
